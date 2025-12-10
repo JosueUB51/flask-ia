@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mesa de Ayuda - Chat Asistente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="chat-container">
+    <div id="chat-box" class="chat-box"></div>
+
+    <div class="input-container">
+      <input id="user-input" type="text" placeholder="Escribe tu mensaje..." />
+      <button id="mic-btn" class="mic-button">🎤</button>
+      <button id="send-btn">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+  const chatBox = document.getElementById("chat-box");
+  const input = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const micBtn = document.getElementById("mic-btn");
+
+  sendBtn.onclick = sendMessage;
+  input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
+
+  function addMessage(sender, text) {
+    const msg = document.createElement("div");
+    msg.classList.add("message", sender);
+    msg.innerHTML = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage("user", text);
+    input.value = "";
+
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    addMessage("bot", data.reply);
+  }
+
+  // 🎤 Grabación de audio con transcripción automática
+  let mediaRecorder, audioChunks = [];
+  micBtn.onclick = async () => {
+    if (micBtn.classList.contains("recording")) {
+      mediaRecorder.stop();
+      micBtn.classList.remove("recording");
+      micBtn.textContent = "🎤";
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        micBtn.classList.add("recording");
+        micBtn.textContent = "🔴 Grabando...";
+
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(audioChunks, { type: "audio/webm" });
+          const formData = new FormData();
+          formData.append("audio", blob, "voz.webm");
+
+          try {
+            const res = await fetch("/analyze_audio", { method: "POST", body: formData });
+            const data = await res.json();
+
+            if (data.text) {
+              // 🗣️ Muestra el texto transcrito en la interfaz como mensaje del usuario
+              addMessage("user", data.text);
+
+              // 💬 Enviar automáticamente ese texto al chatbot
+              const chatRes = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: data.text })
+              });
+              const chatData = await chatRes.json();
+              addMessage("bot", chatData.reply);
+            } else if (data.error) {
+              addMessage("bot", "⚠️ No se pudo procesar el audio.");
+            }
+
+            // 🎧 Solo mostrar emoción en consola
+            if (data.emotion) {
+              console.log(`🎧 Emoción detectada: ${data.emotion} (${data.confidence})`);
+            }
+
+          } catch (err) {
+            console.error("❌ Error al procesar el audio:", err);
+            addMessage("bot", "⚠️ No se pudo analizar el audio.");
+          }
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => {
+          if (mediaRecorder.state === "recording") mediaRecorder.stop();
+        }, 6000); // máximo 6 segundos
+
+      } catch (err) {
+        console.error("❌ Error al acceder al micrófono:", err);
+        addMessage("bot", "⚠️ No se pudo acceder al micrófono.");
+      }
+    }
+  };
+  </script>
+</body>
+</html>
