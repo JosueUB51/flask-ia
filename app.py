@@ -11,16 +11,12 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 
 DEPARTMENTS = [
-    "Baches",
-    "Agua",
-    "Alumbrado público",
-    "Semáforos",
-    "Transporte público",
-    "Poda urbana",
-    "Inundaciones",
-    "Recolección de basura"
+    "Recursos Humanos",
+    "Finanzas",
+    "Tecnologías",
+    "Redes",
+    "Infraestructura"
 ]
-
 
 # Estado del usuario
 user_state = {
@@ -175,6 +171,10 @@ def reset():
     user_state["selected_area"] = None
     user_state["last_departments"] = []
     return jsonify({"msg": "Estado reiniciado."})
+
+@app.route("/", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
 
 
 if __name__ == "__main__":
