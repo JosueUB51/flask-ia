@@ -182,6 +182,7 @@ def reset():
 def health():
     return jsonify({"status": "ok"}), 200
 
+
 @app.route("/debug-openrouter", methods=["GET"])
 def debug_openrouter():
     key = os.getenv("OPENROUTER_API_KEY")
