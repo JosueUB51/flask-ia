@@ -183,23 +183,6 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/debug-openrouter", methods=["GET"])
-def debug_openrouter():
-    key = os.getenv("OPENROUTER_API_KEY")
-
-    r = requests.get(
-        "https://openrouter.ai/api/v1/models",
-        headers={"Authorization": f"Bearer {key}"}
-    )
-
-    return jsonify({
-        "key_present": bool(key),
-        "status_code": r.status_code,
-        "response": r.text[:300]
-    })
-# ============================================================
-
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 # ============================================================
