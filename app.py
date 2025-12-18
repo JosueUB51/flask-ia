@@ -42,9 +42,10 @@ def analizar():
     headers = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
     "Content-Type": "application/json",
-    "HTTP-Referer": "https://siac-ia.oaxaca.gob.mx",
+    "Referer": "https://siac-ia.oaxaca.gob.mx",
     "X-Title": "SIAC IA"
-}
+   }
+
 
     prompt = f"""
     Clasifica este texto en las siguientes áreas:
