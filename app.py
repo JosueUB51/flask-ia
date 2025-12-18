@@ -11,12 +11,16 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 
 DEPARTMENTS = [
-    "Recursos Humanos",
-    "Finanzas",
-    "Tecnologías",
-    "Redes",
-    "Infraestructura"
+    "Baches",
+    "Agua",
+    "Alumbrado público",
+    "Semáforos",
+    "Transporte público",
+    "Poda urbana",
+    "Inundaciones",
+    "Recolección de basura"
 ]
+
 
 # Estado del usuario
 user_state = {
