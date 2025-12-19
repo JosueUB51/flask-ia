@@ -40,12 +40,9 @@ def analizar():
     # Llamada a OpenRouter
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "Content-Type": "application/json",
-    "HTTP-Referer": "https://siac-ia.oaxaca.gob.mx",
-    "X-Title": "SIAC IA"
-}
-
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
 
     prompt = f"""
     Clasifica este texto en las siguientes áreas:
@@ -164,9 +161,6 @@ def canalizar():
     return jsonify({
         "msg": f"Bienvenido al área de {area}. ¿En qué te podemos ayudar?"
     })
-    
-    
-    
 
 
 # ============================================================
@@ -177,10 +171,6 @@ def reset():
     user_state["selected_area"] = None
     user_state["last_departments"] = []
     return jsonify({"msg": "Estado reiniciado."})
-
-@app.route("/", methods=["GET"])
-def health():
-    return jsonify({"status": "ok"}), 200
 
 
 if __name__ == "__main__":
